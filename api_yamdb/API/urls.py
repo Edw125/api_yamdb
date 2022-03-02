@@ -17,12 +17,6 @@ router_v1.register(r'categories',
                    )
 
 urlpatterns = [
-    # Djoser создаст набор необходимых эндпоинтов.
-    # базовые, для управления пользователями в Django:
-    # path('auth/', include('djoser.urls')),
-    # JWT-эндпоинты, для управления JWT-токенами:
-    # path('v1/', include('djoser.urls.jwt')),
-    # path('v1/jwt/create/', views.obtain_auth_token),
 
     path('v1/', include(router_v1.urls)),
 ]

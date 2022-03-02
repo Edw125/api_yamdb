@@ -71,6 +71,12 @@ class Titles(models.Model):
                                    null=True,
                                    verbose_name="Жанр"
                                    )
+    # genre = models.ManyToManyField(Genres,
+    #                                through='TitlesGenres',
+    #                                blank=True,
+    #                                null=True,
+    #                                verbose_name="Жанр"
+    #                                )
 
 
     class Meta:
@@ -80,3 +86,12 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# Тестовая часть
+# class TitlesGenres(models.Model):
+#     titles = models.ForeignKey('Titles', on_delete=models.CASCADE)
+#     genre = models.ForeignKey('Genres', on_delete=models.CASCADE)
+
+#     def __str__(self):
+#         return f'{self.titles} {self.genre}'
