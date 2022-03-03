@@ -1,12 +1,14 @@
 import random
 import string
 from django.core.mail import send_mail
-from django.contrib.auth import get_user_model
-from rest_framework import serializers
+from django.contrib.auth import authenticate, get_user_model
+from rest_framework import exceptions, serializers
 from rest_framework.validators import UniqueValidator
 
-User = get_user_model()
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.settings import api_settings
 
+User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -24,7 +26,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         confirmation_code = ''.join(random.sample(letters_and_digits, 16))
         confirmation_message = (
             f'Здравствуйте! Спасибо за регистрацию в проекте YaMDb. ',
-            f'Ваш код подтверждения: ${confirmation_code}. ',
+            f'Ваш код подтверждения: {confirmation_code}. ',
             f'Он вам понадобится для получения токена для работы с Api YaMDb.',
             f'Токен можно получить по ссылке: ',
             f'http://127.0.0.1:8000/api/v1/auth/token/'
@@ -46,3 +48,5 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+

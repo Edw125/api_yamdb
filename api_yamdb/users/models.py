@@ -27,3 +27,5 @@ class User(AbstractUser):
     )
     role = models.CharField('Роль', max_length=16, choices=CHOICES, default=CHOICES[0])
     confirmation_code = models.CharField(max_length=16, blank=True)
+
+    REQUIRED_FIELDS = ['email']
