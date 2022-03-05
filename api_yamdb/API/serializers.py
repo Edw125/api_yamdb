@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from django.db.models import Avg
+
+
 from titles.models import Genres, Сategories, Titles
 
 # from user.models import User
@@ -37,7 +40,15 @@ class СategoriesCustomSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     genre = GenresCustomSerializer(many=True, required=False)
     category = СategoriesCustomSerializer(required=False)
+    avg_rating = serializers.SerializerMethodField() # это добавил ОШИБКА
 
     class Meta:
         model = Titles
-        fields = ('__all__')
+        fields = ('name', 'year', 'category', 'rating',
+                  'description', 'genre', 
+                  'avg_rating',
+                  )
+    
+    def get_avg_rating(self, ob):
+        # reverse lookup on Reviews using item field
+        return ob.reviews.all().aggregate(Avg('score'))['rating__avg']

@@ -10,6 +10,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'titles.apps.TitlesConfig',
+    'reviews.apps.ReviewsConfig',
     'API.apps.ApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',

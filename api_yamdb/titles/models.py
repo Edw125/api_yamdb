@@ -86,6 +86,8 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
 
 
 # Тестовая часть
