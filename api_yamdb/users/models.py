@@ -6,7 +6,6 @@ CHOICES = [
     ('user', 'Пользователь'),
     ('moderator', 'Модератор'),
     ('admin', 'Администратор'),
-
 ]
 
 class User(AbstractUser):
