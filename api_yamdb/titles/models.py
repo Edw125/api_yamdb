@@ -1,7 +1,7 @@
 from django.db import models
 
 class Genres(models.Model):
-    name = models.CharField('Name',
+    name = models.CharField('Name', 
                             blank=True,
                             max_length=50
                             )
@@ -18,7 +18,7 @@ class Genres(models.Model):
         verbose_name = 'Жанр произведения'
         verbose_name_plural = 'Жанр произведения'
 
-    def __str__(self):
+    def __str__(self): 
         return self.name
 
 
@@ -32,7 +32,7 @@ class Сategories(models.Model):
                             )
     description = models.TextField('Description',
                                    blank=True,
-                                   null=True,
+                                   null=True, 
                                    )
 
     class Meta:

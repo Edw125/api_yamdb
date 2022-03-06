@@ -8,7 +8,7 @@ router_v1.register(r'titles',
                    basename='titles'
                    )
 router_v1.register(r'genres',
-                   GenresViewSet,
+                   GenresViewSet, 
                    basename='genres'
                    )
 router_v1.register(r'categories',
