@@ -8,7 +8,9 @@ from rest_framework import exceptions, filters, serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from titles.models import Genres, Сategories, Titles
+from reviews.models import Comment, Review
+
+from titles.models import Genres, Categories, Titles
 
 
 User = get_user_model()
@@ -62,7 +64,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=email,
             confirmation_code=confirmation_code
         )
-
         return user
 
 
@@ -141,7 +142,7 @@ class GenresSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Genres
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class GenresCustomSerializer(serializers.ModelSerializer):
@@ -151,33 +152,53 @@ class GenresCustomSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug',)
 
 
-class СategoriesSerializer(serializers.ModelSerializer):
+class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Сategories
-        fields = ('__all__')
+        model = Categories
+        fields = '__all__'
 
 
-class СategoriesCustomSerializer(serializers.ModelSerializer):
+class CategoriesCustomSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Сategories
+        model = Categories
         fields = ('name', 'slug',)
 
 
 class TitlesSerializer(serializers.ModelSerializer):
     genre = GenresCustomSerializer(many=True, required=False)
-    category = СategoriesCustomSerializer(required=False)
-    avg_rating = serializers.SerializerMethodField() # это добавил ОШИБКА
+    category = CategoriesCustomSerializer(required=False)
+    avg_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Titles
-        fields = ('name', 'year', 'category', 'rating',
-                  'description', 'genre', 
-                  'avg_rating',
-                  )
+        fields = (
+            'name', 'year', 'category', 'rating',
+            'description', 'genre', 'avg_rating',
+        )
     
     def get_avg_rating(self, ob):
-        # reverse lookup on Reviews using item field
         return ob.reviews.all().aggregate(Avg('score'))['rating__avg']
 
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
+        read_only_fields = ('id', 'pub_date')
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
+        read_only_fields = ('id', 'pub_date')

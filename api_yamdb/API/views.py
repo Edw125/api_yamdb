@@ -3,17 +3,19 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.pagination import (PageNumberPagination,
+                                       LimitOffsetPagination)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from titles.models import Genres, Сategories, Titles
+from titles.models import Genres, Categories, Titles
+from reviews.models import Comment, Review
 from .permissions import OnlyAdmin, AuthUser
 from .serializers import (AdminUserSerializer, GetTokenSerializer,
-                          RegisterSerializer, User, UserSerializer,
-                          GenresSerializer, СategoriesSerializer,
-                          TitlesSerializer,
-                          )
+                          RegisterSerializer, UserSerializer,
+                          GenresSerializer, CategoriesSerializer,
+                          TitlesSerializer, CommentSerializer,
+                          ReviewSerializer, User)
 
 
 @api_view(['POST'])
@@ -143,9 +145,9 @@ class TitlesViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class СategoriesViewSet(viewsets.ModelViewSet):
-    queryset = Сategories.objects.all()
-    serializer_class = СategoriesSerializer
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
@@ -175,3 +177,52 @@ class СategoriesViewSet(viewsets.ModelViewSet):
             raise PermissionDenied('Удалять Категории может только Адмнистратор')
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = PageNumberPagination
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        if not get_object_or_404(Review, pk=review_id):
+            raise PermissionDenied(
+                'Невозможно создать комментарий к несуществующему отзыву!'
+            )
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        if serializer.instance.author != self.request.user:
+            raise PermissionDenied('Изменение чужого контента запрещено!')
+        super(CommentViewSet, self).perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        if instance.author != self.request.user:
+            raise PermissionDenied('Удаление чужого контента запрещено!')
+        super(CommentViewSet, self).perform_destroy(instance)
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        if get_object_or_404(Comment, pk=review_id):
+            return Comment.objects.filter(review=review_id)
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    pagination_class = PageNumberPagination
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        if serializer.instance.author != self.request.user:
+            raise PermissionDenied('Изменение чужого контента запрещено!')
+        super(ReviewViewSet, self).perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        if instance.author != self.request.user:
+            raise PermissionDenied('Удаление чужого контента запрещено!')
+        super(ReviewViewSet, self).perform_destroy(instance)

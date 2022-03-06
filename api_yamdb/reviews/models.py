@@ -3,13 +3,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from django.contrib.auth import get_user_model
 
-from titles.models import Genres, Сategories, Titles
-# Create your models here.
+from titles.models import Genres, Categories, Titles
 
-# from user.models import User
 
 User = get_user_model()
-
 
 
 class Review(models.Model):
@@ -30,16 +27,17 @@ class Review(models.Model):
         help_text='Введите текст отзыва'
     )
     score = models.SmallIntegerField(default=0,validators=[MaxValueValidator(5),MinValueValidator(1)])
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('-pub_date',)
         verbose_name = 'Отзыв на произведение'
         verbose_name_plural = 'Отзывы на произведения'
 
     def __str__(self):
         return self.text[:15]
+
 
 class Comment(models.Model):
     author = models.ForeignKey(
@@ -58,11 +56,11 @@ class Comment(models.Model):
         'Текст комментария',
         help_text='Введите текст комментария'
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('-pub_date',)
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
