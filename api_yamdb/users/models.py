@@ -8,6 +8,7 @@ CHOICES = [
     ('admin', 'Администратор'),
 ]
 
+
 class User(AbstractUser):
     first_name = models.CharField(
         _('first name'),
@@ -24,7 +25,12 @@ class User(AbstractUser):
         'Биография',
         blank=True,
     )
-    role = models.CharField('Роль', max_length=16, choices=CHOICES, default=CHOICES[0])
+    role = models.CharField(
+        'Роль',
+        max_length=16,
+        choices=CHOICES,
+        default=CHOICES[0][0]
+    )
     confirmation_code = models.CharField(max_length=16, blank=True)
 
     REQUIRED_FIELDS = ['email']
