@@ -1,13 +1,26 @@
+
 # api/urls.py
 from django.urls import include, path
 
 from rest_framework.routers import SimpleRouter
 from rest_framework_simplejwt.views import TokenRefreshView
-
+from API.views import GenresViewSet, TitlesViewSet, СategoriesViewSet
 from .views import AdminViewSet, RegisterView, UserView, get_token
 
 router_v1 = SimpleRouter()
 router_v1.register('users', AdminViewSet)
+router_v1.register(r'titles',
+                   TitlesViewSet,
+                   basename='titles'
+                   )
+router_v1.register(r'genres',
+                   GenresViewSet, 
+                   basename='genres'
+                   )
+router_v1.register(r'categories',
+                   СategoriesViewSet,
+                   basename='categories'
+                   )
 
 urlpatterns = [
     path('v1/auth/token/', get_token, name='get_token'),

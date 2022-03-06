@@ -3,10 +3,13 @@ import string
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-
+from django.db.models import Avg
 from rest_framework import exceptions, filters, serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from titles.models import Genres, Сategories, Titles
+
 
 User = get_user_model()
 
@@ -132,3 +135,49 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
         read_only_fields = ('role', 'username', 'email')
+
+
+class GenresSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Genres
+        fields = ('__all__')
+
+
+class GenresCustomSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Genres
+        fields = ('name', 'slug',)
+
+
+class СategoriesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Сategories
+        fields = ('__all__')
+
+
+class СategoriesCustomSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Сategories
+        fields = ('name', 'slug',)
+
+
+class TitlesSerializer(serializers.ModelSerializer):
+    genre = GenresCustomSerializer(many=True, required=False)
+    category = СategoriesCustomSerializer(required=False)
+    avg_rating = serializers.SerializerMethodField() # это добавил ОШИБКА
+
+    class Meta:
+        model = Titles
+        fields = ('name', 'year', 'category', 'rating',
+                  'description', 'genre', 
+                  'avg_rating',
+                  )
+    
+    def get_avg_rating(self, ob):
+        # reverse lookup on Reviews using item field
+        return ob.reviews.all().aggregate(Avg('score'))['rating__avg']
+
