@@ -1,12 +1,8 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-from django.contrib.auth import get_user_model
-
-from titles.models import Genres, Categories, Titles
-
-
-User = get_user_model()
+from titles.models import Titles
+from users.models import User
 
 
 class Review(models.Model):
@@ -26,9 +22,12 @@ class Review(models.Model):
         'Текст отзыва',
         help_text='Введите текст отзыва'
     )
-    score = models.SmallIntegerField(default=0,validators=[MaxValueValidator(5),MinValueValidator(1)])
+    score = models.SmallIntegerField(
+        default=0, validators=[MaxValueValidator(10), MinValueValidator(1)]
+    )
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True)
+        'Дата добавления', auto_now_add=True
+    )
 
     class Meta:
         ordering = ('-pub_date',)

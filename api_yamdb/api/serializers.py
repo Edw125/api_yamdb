@@ -143,7 +143,7 @@ class GenresSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Genres
-        fields = '__all__'
+        fields = ('name', 'slug',)
 
 
 class GenresCustomSerializer(serializers.ModelSerializer):
@@ -157,7 +157,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Categories
-        fields = '__all__'
+        fields = ('name', 'slug',)
 
 
 class CategoriesCustomSerializer(serializers.ModelSerializer):
@@ -170,17 +170,17 @@ class CategoriesCustomSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     genre = GenresCustomSerializer(many=True, required=False)
     category = CategoriesCustomSerializer(required=False)
-    avg_rating = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Titles
         fields = (
-            'name', 'year', 'category', 'rating',
-            'description', 'genre', 'avg_rating',
+            'id', 'name', 'year', 'rating',
+            'description', 'genre', 'category',
         )
-    
-    def get_avg_rating(self, ob):
-        return ob.reviews.all().aggregate(Avg('score'))['rating__avg']
+
+    def get_rating(self, obj):
+        return obj.reviews.all().aggregate(Avg('score'))
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -191,7 +191,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
-        read_only_fields = ('id', 'pub_date')
+        read_only_fields = ('id', 'pub_date',)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -200,6 +200,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
         model = Review
-        read_only_fields = ('id', 'pub_date')
+        read_only_fields = ('id', 'pub_date',)

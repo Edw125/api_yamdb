@@ -60,9 +60,8 @@ class Titles(models.Model):
         'Description', blank=True, null=True,
     )
     genre = models.ManyToManyField(
-        Genres, blank=True, null=True, verbose_name="Жанр"
+        Genres, blank=True, verbose_name="Жанр"
     )
-
 
     class Meta:
         ordering = ('-name',)
