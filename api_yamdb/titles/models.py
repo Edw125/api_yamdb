@@ -49,7 +49,7 @@ class Titles(models.Model):
         blank=True, null=True
     )
     category = models.ForeignKey(
-        'Сategories', on_delete=models.SET_NULL, related_name='сategories',
+        Categories, on_delete=models.SET_NULL, related_name='сategories',
         blank=True, null=True, verbose_name='Категария',
         help_text='Выберите категорию'
     )
@@ -62,12 +62,7 @@ class Titles(models.Model):
     genre = models.ManyToManyField(
         Genres, blank=True, null=True, verbose_name="Жанр"
     )
-    # genre = models.ManyToManyField(Genres,
-    #                                through='TitlesGenres',
-    #                                blank=True,
-    #                                null=True,
-    #                                verbose_name="Жанр"
-    #                                )
+
 
     class Meta:
         ordering = ('-name',)
@@ -76,11 +71,3 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
-
-# Тестовая часть
-# class TitlesGenres(models.Model):
-#     titles = models.ForeignKey('Titles', on_delete=models.CASCADE)
-#     genre = models.ForeignKey('Genres', on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f'{self.titles} {self.genre}'
