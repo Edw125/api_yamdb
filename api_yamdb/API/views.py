@@ -89,24 +89,34 @@ class UserView(APIView):
 
 
 class GenresViewSet(viewsets.ModelViewSet):
+    lookup_field = 'slug' 
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnlyPermission)
+    permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,
+                          IsAdminOrReadOnlyPermission)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnlyPermission)
-    
+    permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,
+                          IsAdminOrReadOnlyPermission)
+
+    def perform_destroy(self, serializer):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)   
+
 
 class CategoriesViewSet(viewsets.ModelViewSet):
+    lookup_field = 'slug' 
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAdminOrReadOnlyPermission)
+    permission_classes = (permissions.DjangoModelPermissionsOrAnonReadOnly,
+                           IsAdminOrReadOnlyPermission)
 
 
 class CommentViewSet(viewsets.ModelViewSet):

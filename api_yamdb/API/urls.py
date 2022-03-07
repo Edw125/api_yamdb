@@ -4,7 +4,8 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from api.views import (GenresViewSet, TitlesViewSet, CategoriesViewSet,
                        CommentViewSet, ReviewViewSet)
-from .views import AdminViewSet, RegisterView, UserView, get_token
+from .views import (AdminViewSet, RegisterView, UserView, get_token,
+                    )
 
 router_v1 = SimpleRouter()
 router_v1.register('users', AdminViewSet)
@@ -40,4 +41,5 @@ urlpatterns = [
     ),
     path('v1/users/me/', UserView.as_view(), name='user_me'),
     path('v1/', include(router_v1.urls)),
+
 ]

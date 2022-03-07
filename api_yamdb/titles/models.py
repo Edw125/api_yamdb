@@ -3,7 +3,7 @@ from django.db import models
 
 class Genres(models.Model):
     name = models.CharField(
-        'Name', blank=True, max_length=50
+        'Name', max_length=50
     )
     slug = models.SlugField(
         'Slug', unique=True
