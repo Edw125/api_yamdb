@@ -3,7 +3,7 @@ from django.contrib import admin
 from titles.models import Titles, Genres, Categories
 
 
-@admin.register(Titles)
+@admin.register(Titles) 
 class TitlesAdmin(admin.ModelAdmin):
     list_display = (
         'pk', 'name', 'year', 'rating',

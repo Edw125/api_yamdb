@@ -1,19 +1,20 @@
 import random
 import string
 
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Avg
 from rest_framework import exceptions, filters, serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from users.models import User
 from reviews.models import Comment, Review
 
 from titles.models import Genres, Categories, Titles
 
 
-User = get_user_model()
+# User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):

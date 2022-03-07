@@ -9,13 +9,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from titles.models import Genres, Categories, Titles
+from users.models import User
 from reviews.models import Comment, Review
 from .permissions import OnlyAdmin, IsAdminOrReadOnlyPermission
 from .serializers import (AdminUserSerializer, GetTokenSerializer,
                           RegisterSerializer, UserSerializer,
                           GenresSerializer, CategoriesSerializer,
                           TitlesSerializer, CommentSerializer,
-                          ReviewSerializer, User)
+                          ReviewSerializer, )
 
 
 @api_view(['POST'])
