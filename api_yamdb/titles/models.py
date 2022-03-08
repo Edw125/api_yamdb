@@ -6,7 +6,8 @@ class Genres(models.Model):
         'Name', max_length=50
     )
     slug = models.SlugField(
-        'Slug', unique=True
+        'Slug', 
+        unique=True
     )
     description = models.TextField(
         'Description', blank=True, null=True
@@ -26,7 +27,8 @@ class Categories(models.Model):
         'Name', blank=True, max_length=50
     )
     slug = models.SlugField(
-        'Slug', unique=True
+        'Slug', 
+        unique=True
     )
     description = models.TextField(
         'Description', blank=True, null=True
@@ -60,7 +62,10 @@ class Titles(models.Model):
         'Description', blank=True, null=True,
     )
     genre = models.ManyToManyField(
-        Genres, blank=True, verbose_name="Жанр"
+        Genres,
+        blank=True,
+        verbose_name="Жанр",
+        through='TitlesGenres'
     )
 
     class Meta:
@@ -70,3 +75,10 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+
+class TitlesGenres(models.Model):
+    genre = models.ForeignKey(Genres, on_delete=models.CASCADE)
+    title = models.ForeignKey(Titles, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.title} {self.genre}'

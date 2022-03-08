@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics, permissions, status, viewsets
+from rest_framework import generics, permissions, status, viewsets, filters
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (PageNumberPagination,
@@ -91,6 +91,8 @@ class UserView(APIView):
 class GenresViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     queryset = Genres.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
@@ -106,6 +108,8 @@ class TitlesViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     queryset = Categories.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)

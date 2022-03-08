@@ -1,17 +1,20 @@
 import random
 import string
 
+
 # from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Avg
-from rest_framework import exceptions, filters, serializers
+from rest_framework import exceptions, filters, serializers, status
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
+
 
 from users.models import User
 from reviews.models import Comment, Review
 
-from titles.models import Genres, Categories, Titles
+from titles.models import Genres, Categories, Titles, TitlesGenres
 
 
 # User = get_user_model()
@@ -160,16 +163,16 @@ class CategoriesSerializer(serializers.ModelSerializer):
         fields = ('name', 'slug',)
 
 
-class CategoriesCustomSerializer(serializers.ModelSerializer):
+# class CategoriesCustomSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Categories
-        fields = ('name', 'slug',)
+#     class Meta:
+#         model = Categories
+#         fields = ('name', 'slug',)
 
 
 class TitlesSerializer(serializers.ModelSerializer):
-    genre = GenresCustomSerializer(many=True, required=False)
-    category = CategoriesCustomSerializer(required=False)
+    genre = GenresSerializer(many=True, required=False)
+    category = CategoriesSerializer(required=False)
     rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -180,7 +183,35 @@ class TitlesSerializer(serializers.ModelSerializer):
         )
 
     def get_rating(self, obj):
-        return obj.reviews.all().aggregate(Avg('score'))
+        count_rev = Review.objects.filter(title=obj.pk).count()
+        if count_rev == 0:
+            return None
+        else:
+            return obj.reviews.all().aggregate(Avg('score'))
+
+
+    def create(self, validated_data):
+        # Если в исходном запросе не было поля genre
+        if 'genre' not in self.initial_data:
+            # То создаём запись о произвдении без его жанре
+            title = Titles.objects.create(**validated_data)
+            return title
+        # Иначе делаем следующее:
+        # Уберём список жанров из словаря validated_data и сохраним его
+        genres = validated_data.pop('genre')
+        # Сначала добавляем произведение в БД
+        title = Titles.objects.create(**validated_data)
+        # Перебираем жанры в запросе
+        for genre in genres:
+            # Проверяем если такой жанр в бд
+            genre_exists = Genres.objects.filter(name=genre).exists()
+            # Если нету сообщаем о ошибке в запросе
+            if not genre_exists:
+                Response(status=status.HTTP_400_BAD_REQUEST)
+            # Если есть связываем произведение и жанр
+            TitlesGenres.objects.create(
+                genre=genre, title=title)
+        return title
 
 
 class CommentSerializer(serializers.ModelSerializer):
