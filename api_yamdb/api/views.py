@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics, permissions, status, viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import generics, permissions, status, viewsets, filters
+from rest_framework.exceptions import PermissionDenied, MethodNotAllowed
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (PageNumberPagination,
                                        LimitOffsetPagination)
@@ -91,6 +91,8 @@ class UserView(APIView):
 class GenresViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     queryset = Genres.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
@@ -103,9 +105,12 @@ class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
 
 
+
 class CategoriesViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     queryset = Categories.objects.all()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
@@ -122,7 +127,8 @@ class CommentViewSet(viewsets.ModelViewSet):
             raise PermissionDenied(
                 'Невозможно создать комментарий к несуществующему отзыву!'
             )
-        serializer.save(author=self.request.user)
+        review = Review.objects.get(id=review_id)
+        serializer.save(author=self.request.user, review=review)
 
     def perform_update(self, serializer):
         if serializer.instance.author != self.request.user:
@@ -141,13 +147,14 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        title_id = self.kwargs.get("title_id")
+        title = Titles.objects.get(id=title_id)
+        serializer.save(author=self.request.user, title=title)
 
     def perform_update(self, serializer):
         if serializer.instance.author != self.request.user:
@@ -158,3 +165,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
         if instance.author != self.request.user:
             raise PermissionDenied('Удаление чужого контента запрещено!')
         super(ReviewViewSet, self).perform_destroy(instance)
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('title_id')
+        if get_object_or_404(Titles, pk=title_id):
+            return Review.objects.filter(title=title_id)
