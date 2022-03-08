@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics, permissions, status, viewsets, filters
+from rest_framework import generics, permissions, status, viewsets, filters, mixins
 from rest_framework.exceptions import PermissionDenied, MethodNotAllowed
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (PageNumberPagination,
@@ -88,7 +88,11 @@ class UserView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GetListCreateDeleteViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, 
+                                 mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    pass
+
+class GenresViewSet(GetListCreateDeleteViewSet):
     lookup_field = 'slug'
     queryset = Genres.objects.all()
     filter_backends = (filters.SearchFilter,)
@@ -106,7 +110,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 
 
-class CategoriesViewSet(viewsets.ModelViewSet):
+class CategoriesViewSet(GetListCreateDeleteViewSet):
     lookup_field = 'slug'
     queryset = Categories.objects.all()
     filter_backends = (filters.SearchFilter,)
