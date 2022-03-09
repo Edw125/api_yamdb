@@ -131,17 +131,16 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         review_id = self.kwargs.get('review_id')
-        if not get_object_or_404(Review, pk=review_id):
-            raise PermissionDenied(
-                'Невозможно создать комментарий к несуществующему отзыву!'
-            )
+        if not Review.objects.filter(id=review_id).exists():
+            raise NotFound()
         review = Review.objects.get(id=review_id)
         serializer.save(author=self.request.user, review=review)
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
-        if get_object_or_404(Comment, pk=review_id):
-            return Comment.objects.filter(review=review_id)
+        if not Review.objects.filter(id=review_id).exists():
+            raise NotFound()
+        return Comment.objects.filter(review=review_id)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
