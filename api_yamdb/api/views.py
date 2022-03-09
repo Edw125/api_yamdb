@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, permissions, status, viewsets, filters, mixins
-from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, ParseError
+from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, ParseError, NotFound
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (PageNumberPagination,
                                        LimitOffsetPagination)
@@ -151,6 +151,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get("title_id")
+        if not Title.objects.filter(id=title_id).exists():
+            raise NotFound()
         title = Title.objects.get(id=title_id)
         existing = Review.objects.filter(
             author=self.request.user,
