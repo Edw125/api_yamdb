@@ -141,13 +141,10 @@ class GenresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genres
         fields = ('name', 'slug',)
-
-
-class GenresCustomSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Genres
-        fields = ('name', 'slug',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -155,18 +152,29 @@ class CategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categories
         fields = ('name', 'slug',)
+        lookup_field = 'slug'
+        extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+        }
 
+class GenreField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = GenresSerializer(value)
+        return serializer.data
 
-class CategoriesCustomSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Categories
-        fields = ('name', 'slug',)
-
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategoriesSerializer(value)
+        return serializer.data
 
 class TitlesSerializer(serializers.ModelSerializer):
-    genre = GenresCustomSerializer(many=True, required=False)
-    category = CategoriesCustomSerializer(required=False)
+    genre = GenreField(slug_field='slug',
+                       queryset=Genres.objects.all(),
+                       many=True
+                       )
+    category = CategoryField(slug_field='slug',
+                             queryset=Categories.objects.all()
+                             )
     rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -175,6 +183,8 @@ class TitlesSerializer(serializers.ModelSerializer):
             'id', 'name', 'year', 'rating',
             'description', 'genre', 'category',
         )
+        filter_backends = (filters.SearchFilter,)
+        search_fields = ('genre',)
 
     def get_rating(self, obj):
         return obj.reviews.all().aggregate(Avg('score'))['score__avg']
