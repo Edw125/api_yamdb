@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, permissions, status, viewsets, filters, mixins
-from rest_framework.exceptions import PermissionDenied, MethodNotAllowed
+from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, ParseError
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import (PageNumberPagination,
                                        LimitOffsetPagination)
@@ -12,7 +12,8 @@ from rest_framework.views import APIView
 from titles.models import Genres, Categories, Title
 from users.models import User
 from reviews.models import Comment, Review
-from .permissions import OnlyAdmin, IsAdminOrReadOnlyAnonymusPermission
+from .permissions import (OnlyAdmin, IsAdminOrReadOnlyAnonymusPermission,
+                          ReviewAndCommentPermission)
 from .serializers import (AdminUserSerializer, GetTokenSerializer,
                           RegisterSerializer, UserSerializer,
                           GenresSerializer, CategoriesSerializer,
@@ -125,7 +126,7 @@ class CategoriesViewSet(GetListCreateDeleteViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (ReviewAndCommentPermission,)
     pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
@@ -137,16 +138,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = Review.objects.get(id=review_id)
         serializer.save(author=self.request.user, review=review)
 
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        super(CommentViewSet, self).perform_update(serializer)
-
-    def perform_destroy(self, instance):
-        if instance.author != self.request.user:
-            raise PermissionDenied('Удаление чужого контента запрещено!')
-        super(CommentViewSet, self).perform_destroy(instance)
-
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         if get_object_or_404(Comment, pk=review_id):
@@ -155,23 +146,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (ReviewAndCommentPermission,)
     pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
         title_id = self.kwargs.get("title_id")
         title = Title.objects.get(id=title_id)
+        existing = Review.objects.filter(
+            author=self.request.user,
+            title=title
+        ).exists()
+        if existing:
+            raise ParseError()
         serializer.save(author=self.request.user, title=title)
-
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        super(ReviewViewSet, self).perform_update(serializer)
-
-    def perform_destroy(self, instance):
-        if instance.author != self.request.user:
-            raise PermissionDenied('Удаление чужого контента запрещено!')
-        super(ReviewViewSet, self).perform_destroy(instance)
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id')
