@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import User
 from reviews.models import Comment, Review
 
-from titles.models import Genres, Categories, Titles
+from titles.models import Genres, Categories, Title
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -178,7 +178,7 @@ class TitlesSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
 
     class Meta:
-        model = Titles
+        model = Title
         fields = (
             'id', 'name', 'year', 'rating',
             'description', 'genre', 'category',

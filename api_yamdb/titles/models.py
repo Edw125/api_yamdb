@@ -41,7 +41,7 @@ class Categories(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         'Name', max_length=200
     )

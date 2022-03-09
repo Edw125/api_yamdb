@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from titles.models import Titles, Genres, Categories
+from titles.models import Title, Genres, Categories
 
 
-@admin.register(Titles) 
-class TitlesAdmin(admin.ModelAdmin):
+@admin.register(Title) 
+class TitleAdmin(admin.ModelAdmin):
     list_display = (
         'pk', 'name', 'year', 'rating',
         'description', 'category',
