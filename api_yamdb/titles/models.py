@@ -17,7 +17,7 @@ class Genres(models.Model):
         verbose_name = 'Жанр произведения'
         verbose_name_plural = 'Жанры произведения'
 
-    def __str__(self): 
+    def __str__(self):
         return self.name
 
 
@@ -60,8 +60,8 @@ class Title(models.Model):
         'Description', blank=True, null=True,
     )
     genre = models.ManyToManyField(
-        Genres, 
-        blank=True, 
+        Genres,
+        blank=True,
         related_name='titles',
         verbose_name="Жанр"
     )

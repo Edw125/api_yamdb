@@ -1,25 +1,25 @@
 from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, permissions, status, viewsets, filters, mixins
-from rest_framework.exceptions import PermissionDenied, MethodNotAllowed, ParseError, NotFound
+from rest_framework import (filters, generics, mixins, permissions, status,
+                            viewsets)
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.pagination import (PageNumberPagination,
-                                       LimitOffsetPagination)
+from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from titles.models import Genres, Categories, Title
-from users.models import User
 from reviews.models import Comment, Review
-from .permissions import (OnlyAdmin, IsAdminOrReadOnlyAnonymusPermission,
-                          ReviewAndCommentPermission)
-from .serializers import (AdminUserSerializer, GetTokenSerializer,
-                          RegisterSerializer, UserSerializer,
-                          GenresSerializer, CategoriesSerializer,
-                          TitlesSerializer, CommentSerializer,
-                          ReviewSerializer, )
+from titles.models import Categories, Genres, Title
+from users.models import User
 from .filters import TitleFilter
+from .permissions import (IsAdminOrReadOnlyAnonymusPermission, OnlyAdmin,
+                          ReviewAndCommentPermission)
+from .serializers import (AdminUserSerializer, CategoriesSerializer,
+                          CommentSerializer, GenresSerializer,
+                          GetTokenSerializer, RegisterSerializer,
+                          ReviewSerializer, TitlesSerializer, UserSerializer)
 
 
 @api_view(['POST'])
@@ -91,9 +91,12 @@ class UserView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetListCreateDeleteViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, 
-                                 mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class GetListCreateDeleteViewSet(mixins.ListModelMixin,
+                                 mixins.CreateModelMixin,
+                                 mixins.DestroyModelMixin,
+                                 viewsets.GenericViewSet):
     pass
+
 
 class GenresViewSet(GetListCreateDeleteViewSet):
     lookup_field = 'slug'
@@ -104,6 +107,7 @@ class GenresViewSet(GetListCreateDeleteViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
 
+
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitlesSerializer
@@ -111,7 +115,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-
 
 
 class CategoriesViewSet(GetListCreateDeleteViewSet):

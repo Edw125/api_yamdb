@@ -4,14 +4,12 @@ import string
 from django.core.mail import send_mail
 from django.db.models import Avg
 from rest_framework import exceptions, filters, serializers
-from rest_framework.generics import get_object_or_404
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.models import User
 from reviews.models import Comment, Review
-
-from titles.models import Genres, Categories, Title
+from titles.models import Categories, Genres, Title
+from users.models import User
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -137,7 +135,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class GenresSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Genres
         fields = ('name', 'slug',)
@@ -157,15 +155,18 @@ class CategoriesSerializer(serializers.ModelSerializer):
             'url': {'lookup_field': 'slug'}
         }
 
+
 class GenreField(serializers.SlugRelatedField):
     def to_representation(self, value):
         serializer = GenresSerializer(value)
         return serializer.data
 
+
 class CategoryField(serializers.SlugRelatedField):
     def to_representation(self, value):
         serializer = CategoriesSerializer(value)
         return serializer.data
+
 
 class TitlesSerializer(serializers.ModelSerializer):
     genre = GenreField(slug_field='slug',

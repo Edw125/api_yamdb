@@ -1,6 +1,5 @@
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.exceptions import ValidationError
+from django.db import models
 
 from titles.models import Title
 from users.models import User
@@ -36,7 +35,7 @@ class Review(models.Model):
         verbose_name_plural = 'Отзывы на произведения'
         constraints = [
             models.UniqueConstraint(
-                fields=['author', 'title'], 
+                fields=['author', 'title'],
                 name='unique_chapter'
             )
         ]

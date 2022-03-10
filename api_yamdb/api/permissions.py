@@ -25,6 +25,7 @@ class ReviewAndCommentPermission(permissions.BasePermission):
             request.user
             and request.user.is_authenticated
         )
+
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -34,8 +35,8 @@ class ReviewAndCommentPermission(permissions.BasePermission):
                 and request.user.is_authenticated
             )
         if request.method == 'PATCH' or request.method == 'DELETE':
-            return bool(request.user.role == 'admin' or
-                request.user.role == 'moderator' or
-                obj.author == request.user
-            )
+            return bool(request.user.role == 'admin'
+                        or request.user.role == 'moderator'
+                        or obj.author == request.user
+                        )
         return False
