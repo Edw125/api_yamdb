@@ -19,6 +19,7 @@ from .serializers import (AdminUserSerializer, GetTokenSerializer,
                           GenresSerializer, CategoriesSerializer,
                           TitlesSerializer, CommentSerializer,
                           ReviewSerializer, )
+from .filters import TitleFilter
 
 
 @api_view(['POST'])
@@ -103,14 +104,13 @@ class GenresViewSet(GetListCreateDeleteViewSet):
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
 
-
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitlesSerializer
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     permission_classes = (IsAdminOrReadOnlyAnonymusPermission,)
-    # filter_backends = (DjangoFilterBackend,)
-    # filterset_fields = ('genre',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
 
 
 
