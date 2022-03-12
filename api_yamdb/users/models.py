@@ -33,4 +33,7 @@ class User(AbstractUser):
     )
     confirmation_code = models.CharField(max_length=16, blank=True)
 
+    class Meta:
+        ordering = ('username',)
+
     REQUIRED_FIELDS = ['email']
