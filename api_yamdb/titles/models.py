@@ -9,7 +9,7 @@ class Genres(models.Model):
         'Slug', unique=True
     )
     description = models.TextField(
-        'Description', blank=True, null=True
+        'Description', blank=True,
     )
 
     class Meta:
@@ -49,8 +49,11 @@ class Title(models.Model):
         blank=True, null=True
     )
     category = models.ForeignKey(
-        Categories, on_delete=models.SET_NULL, related_name='сategories',
-        blank=True, null=True, verbose_name='Категария',
+        Categories,
+        on_delete=models.SET_NULL,
+        related_name='сategories',
+        blank=True, null=True,
+        verbose_name='Категория',
         help_text='Выберите категорию'
     )
     rating = models.IntegerField(

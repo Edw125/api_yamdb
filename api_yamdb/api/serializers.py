@@ -1,5 +1,5 @@
-import random
-import string
+import datetime as dt
+import uuid
 
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -24,7 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=User.objects.all(),
-                fields=['username', 'email']
+                fields=('username', 'email')
             )
         ]
 
@@ -36,8 +36,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        letters_and_digits = string.ascii_letters + string.digits
-        confirmation_code = ''.join(random.sample(letters_and_digits, 16))
+        confirmation_code = str(uuid.uuid4())
         confirmation_message = (
             'Здравствуйте! Спасибо за регистрацию в проекте YaMDb. ',
             f'Ваш код подтверждения: {confirmation_code}. ',
@@ -189,6 +188,17 @@ class TitlesSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         return obj.reviews.all().aggregate(Avg('score'))['score__avg']
+
+    def validate_year(self, value):
+        kw_data = self._kwargs['data']
+        category = kw_data['category']
+        if category == 'movie':
+            year = dt.date.today().year
+            start_year = 1895
+            error_msg = 'Проверьте год создания произведения!'
+            if not (start_year < value <= year):
+                raise serializers.ValidationError(error_msg)
+        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):

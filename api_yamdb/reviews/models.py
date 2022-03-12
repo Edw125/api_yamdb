@@ -22,8 +22,10 @@ class Review(models.Model):
         'Текст отзыва',
         help_text='Введите текст отзыва'
     )
-    score = models.SmallIntegerField(
-        default=0, validators=[MaxValueValidator(10), MinValueValidator(1)]
+    score = models.PositiveSmallIntegerField(
+        default=0,
+        error_messages={'validators': 'Неправильное значение поля'},
+        validators=[MaxValueValidator(10), MinValueValidator(1)],
     )
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True

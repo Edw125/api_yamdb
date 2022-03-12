@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from api_yamdb.settings import VALUE_DISPLAY
 from reviews.models import Comment, Review
 
 
@@ -14,7 +15,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_editable = (
         'author', 'title', 'text', 'score',
     )
-    empty_value_display = '-пусто-'
+    empty_value_display = VALUE_DISPLAY
 
 
 @admin.register(Comment)
@@ -23,4 +24,4 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('author', 'text', 'pub_date',)
     list_filter = ('author',)
     list_editable = ('author', 'review', 'text',)
-    empty_value_display = '-пусто-'
+    empty_value_display = VALUE_DISPLAY
